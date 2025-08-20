@@ -1,0 +1,67 @@
+# Disciplina: Arquitetura e Organização de Processadores
+# Alunos: Eduardo Reichert, Rafael Buratto Ribas, Davi D'Avila
+
+.text
+ vetores:
+ # colocando o vetor A na RAM
+0  addi s0, zero, 1
+1  addi t0, zero, 0      #registrador usado para o calculo do endereço
+2  sw   s0, 0(t0)        #s0 = 1; armazenado no endereço 0
+3  addi s1, zero, 2 
+4  sw   s1, 4(t0)        #s1 = 2; armazenado no endereço 4
+5  addi s2, zero, 3
+6  sw   s2, 8(t0)        #s2 = 3; armazenado no endereço 8
+7  addi s3, zero, 4
+8  sw   s3, 12(t0)       #s3 = 4; armazenado no endereço 12
+9 addi s4, zero, 5
+10 sw   s4, 16(t0)       #s4 = 5; armazenado no endereço 16
+11 addi s5, zero, 6
+12 sw   s5, 20(t0)       #s5 = 6; armazenado no endereço 20
+13 addi s6, zero, 7
+14 sw   s6, 24(t0)       #s6 = 7; armazenado no endereço 24
+15 addi s7, zero, 8
+16 sw   s7, 28(t0)       #s7 = 8; armazenado no endereço 28
+ 
+ main:
+ #t0 já tem o valor 0 guardado nele para ser a primeira posição
+17 addi t6, zero, 8      # posicao max vet; t6 = 8
+18 lw   s0, 0(t0)        # s0 = vetA[0]; maior = vet[0]
+19 add  s1, zero, t0     # s1 = 0; indice_maior = 0
+
+ for_1:
+20 add  s2, t0, t0       # i = i*2
+21 add  s2, s2, s2       # i = i*4; indice vezes 4 para calcular o endereço       !!!!!!!
+22 lw   t1, 0(s2)        # t1 = vetA[i]
+23 slt  t2, s0, t1       # se s0 < t1 então t2 = 1; maior < vetA[i] então t2 = 1
+24 addi t3, zero, 1      # t3 = 1, para verificar o branch
+25 beq  t3, t2, troca    # if maior < vetA[i] go to...
+26 addi t0, t0, 1        # i ++
+27 beq  t0, t6, exit_1   # if t0 = t6 (i = 8) go to...
+28 j for_1               # recomeça o loop
+
+ troca:
+29 add  s0, zero, t1     # subistitui o maior valor achado
+30 add  s1, zero, t0     # subistitui o indice em que o maior valor esta
+31 addi t0, t0, 1        # i ++
+32 beq  t0, t6, exit_1   # if t0 = s6 (i = 8) go to...
+33 j for_1
+
+ exit_1:
+34 addi s8, zero, 32     # o endereço base do vetB[]
+35 addi t0, zero, 0      # zerando i novamente
+
+ loop:
+36 add  s2, t0, t0       # i = i*2
+37 add  s2, s2, s2       # i = i*4, indece vezes 4 para calcular o endereço
+38 addi t2, s2, 0        # endereco absoluto do vetA, indice *4 mais endereço base
+39 addi t3, s2, 32       # endereco absoluto do vetB, indice *4 mais endereço base
+ # o vetB começa logo depois do vetA, por isso 32.
+40 lw   t4, 0(t2)        # carregando a palavra do vetA[i]
+41 sub  t4, s0, t4       # t4 = s0 - t4; t4 = maior - vetA[i]
+42 sw   t4, 0(t3)        # guarda t4 em vetB[i]; vetB[i] = maior - vetA[i]
+43 addi t0, t0, 1        # i ++
+44 beq  t0, t6, exit_2   # if t0 = t6 (i = 8) go to...
+45 j loop
+
+ exit_2:
+46 nop
