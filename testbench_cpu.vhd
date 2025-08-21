@@ -39,7 +39,7 @@ wait for 5 ns;
     w_CLK <= '0';
 wait for 5 ns;
 	 
-    for i in 1 to 100 loop
+    for i in 1 to 10000 loop
         w_CLK <= '0';
         wait for 1000 ns;
         w_CLK <= '1';
@@ -48,3 +48,4 @@ wait for 5 ns;
     wait; 
 end process;
 end;
+
