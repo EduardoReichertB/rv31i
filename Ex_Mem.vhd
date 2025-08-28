@@ -16,6 +16,7 @@ port(
 	i_Ula_Result : in std_logic_vector(31 downto 0);
 	i_RD2        : in std_logic_vector(31 downto 0);
 	i_Reg_Dst    : in std_logic_vector(4 downto 0);
+	i_funct3     : in std_logic;
 	o_Mem_To_Reg : out std_logic;
 	o_Branch     : out std_logic;
 	o_Jump       : out std_logic;
@@ -25,7 +26,8 @@ port(
 	o_Zero       : out std_logic;
 	o_Ula_Result : out std_logic_vector(31 downto 0);
 	o_RD2        : out std_logic_vector(31 downto 0);
-	o_Reg_Dst    : out std_logic_vector(4 downto 0)
+	o_Reg_Dst    : out std_logic_vector(4 downto 0);
+	o_funct3     : out std_logic
 );
 end entity;
 
@@ -140,5 +142,13 @@ gen_Reg_Destino : for i in 0 to 4 generate
     o_S        => o_Reg_Dst(i)
   );
 end generate gen_Reg_Destino; 
+
+REG_funct3 : registrador_1bit
+port map(
+	i_CLK => i_CLK,
+	i_RST => i_RST,
+	i_D   => i_funct3,
+	o_S   => o_funct3
+);
   
 end architecture;
