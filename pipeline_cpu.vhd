@@ -69,10 +69,13 @@ signal w_data_out_mem       : std_logic_vector(31 downto 0);
 signal w_saida_ula_mem      : std_logic_vector(31 downto 0);
 
 --sinais BARRAMENTO mem-wb
-
+signal w_MemToReg_MEM_WB : std_logic;
+signal w_RegWrite_MEM_WB : std_logic;
+signal w_data_out_MEM_WB : std_logic_vector(31 downto 0);
+signal w_saida_ula_MEM_WB : std_logic_vector(31 downto 0);
+signal w_Reg_Destino_MEM_WB : std_logic_vector(4 downto 0);
 
 --sinais ETAPA wb
-signal w_Reg_Destino_wb : std_logic_vector(4 downto 0);
 signal w_Data_write_wb : std_logic_vector(31 downto 0);
 
 --sinais CONTROLE
@@ -235,6 +238,32 @@ port(
 );
 end component;
 
+component Mem_Wb is
+port(
+	i_CLK        : in std_logic;
+	i_RST        : in std_logic;
+	i_Mem_To_Reg : in std_logic;
+	i_Reg_Write  : in std_logic;
+	i_data_out   : in std_logic_vector(31 downto 0);
+	i_Ula_Result : in std_logic_vector(31 downto 0);
+	i_Reg_Dst    : in std_logic_vector(4 downto 0);
+	o_Mem_To_Reg : out std_logic;
+	o_Reg_Write  : out std_logic;
+	o_data_out   : out std_logic_vector(31 downto 0);
+	o_Ula_Result : out std_logic_vector(31 downto 0);
+	o_Reg_Dst    : out std_logic_vector(4 downto 0)
+);
+end component;
+
+component Write_Back is
+port(
+	i_saida_ula  : in std_logic_vector(31 downto 0);
+	i_data_out   : in std_logic_vector(31 downto 0);
+	i_MemToReg   : in std_logic;
+	o_Data_write : out std_logic_vector(31 downto 0)
+);
+end component;
+
 begin
 
 u_Instruction_Fetch : Instruction_Fetch
@@ -260,11 +289,11 @@ port map(
 
 u_Instruction_Decode : Instruction_Decode
 port map(
-	i_instrucao   => w_instrucao_if,
+	i_instrucao   => w_instrucao_IF_ID,
 	i_Dado_Novo   => w_Data_write_wb,    
-	i_Reg_Destino => w_Reg_Destino_wb,
-	i_imm_src     => w_imm_src,  --controle
-	i_RegWrite    => w_RegWrite, --controle
+	i_Reg_Destino => w_Reg_Destino_MEM_WB,
+	i_imm_src     => w_imm_src,         --controle
+	i_RegWrite    => w_RegWrite_MEM_WB, --controle
 	i_CLK         => i_Clock,
 	i_RST         => i_Reset,
 	o_RD1         => w_RD1_id,
@@ -322,7 +351,7 @@ port map(
 
 U_Execution : Execution
 port map(
-	i_pc_mais_quatro => w_addr_mais4_IF_ID,
+	i_pc_mais_quatro => w_addr_mais4_ID_EX,
 	i_imediato       => w_imediato_ID_EX,
 	i_A              => w_RD1_ID_EX, --recebe o RD1
 	i_B              => w_RD2_ID_EX, --recebe o RD2
@@ -377,6 +406,30 @@ port map(
 	o_ocorreu_desvio => w_ocorreu_desvio_mem,
 	o_data_out       => w_data_out_mem,
 	o_saida_ULA      => w_saida_ula_mem
+);
+
+u_Mem_Wb : Mem_Wb
+port map(
+	i_CLK        => i_Clock,
+	i_RST        => i_Reset,
+	i_Mem_To_Reg => w_MemToReg_EX_MEM,
+	i_Reg_Write  => w_RegWrite_EX_MEM,
+	i_data_out   => w_data_out_mem,
+	i_Ula_Result => w_saida_ula_mem,
+	i_Reg_Dst    => w_Reg_Destino_EX_MEM,
+	o_Mem_To_Reg => w_MemToReg_MEM_WB,
+	o_Reg_Write  => w_RegWrite_MEM_WB,
+	o_data_out   => w_data_out_MEM_WB,
+	o_Ula_Result => w_saida_ula_MEM_WB,
+	o_Reg_Dst    => w_Reg_Destino_MEM_WB
+);
+
+u_Write_Back : Write_Back
+port map(
+	i_saida_ula  => w_saida_ula_MEM_WB,
+	i_data_out   => w_data_out_MEM_WB,
+	i_MemToReg   => w_MemToReg_MEM_WB,
+	o_Data_write => w_Data_write_wb
 );
 
 end architecture;
