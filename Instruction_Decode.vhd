@@ -68,7 +68,7 @@ port map(
 
 o_opcode <= i_instrucao(6 downto 0);
 
-o_Reg_Destino <= i_instrucao(4 downto 0);
+o_Reg_Destino <= i_instrucao(11 downto 7);
 
 o_funcao_ula(0) <= i_instrucao(12);
 o_funcao_ula(1) <= i_instrucao(13);
